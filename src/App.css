@@ -6,10 +6,126 @@
 }
 
 .header {
+  background-color: #fff9c4;
+  padding: 0.3rem;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-  width: 4rem;
-  height: 4.5rem;
+  width: 2rem;
+  height: 2.5rem;
+}
+
+body {
+  background-color: #fffde6;
+  margin: 0;
+  padding: 0;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.tabs button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background-color: #f8f9fa;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 0.5rem 0.5rem 0 0;
+  transition: all 0.3s ease;
+}
+
+.tabs button.active {
+  border-bottom: 3px solid #ffd966;
+  background-color: #fff3b0;
+  font-weight: bold;
+}
+
+.item-list {
+  padding: 0 1rem;
+}
+
+.item-list li {
+  background-color: #ffffff;
+  border: 2px dashed #ccc;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.item-list button {
+  margin-left: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.item-list button:first-of-type {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.item-list button:first-of-type:hover {
+  background-color: #c3e6cb;
+}
+
+.item-list button:last-of-type {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.item-list button:last-of-type:hover {
+  background-color: #f5c6cb;
+}
+
+.add-box {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem auto;
+  max-width: 400px;
+}
+
+.add-box input {
+  flex-grow: 1;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+  font-size: 1rem;
+}
+
+.add-box button {
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  background-color: #ffe599;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-box button:hover {
+  background-color: #ffecb3;
+}
+
+.reaction-face {
+  text-align: center;
+  font: 2rem;
+  margin-top: 1rem;
 }
