@@ -22,6 +22,7 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
   const [showHistory, setShowHistory] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     localStorage.setItem("shelfie-data", JSON.stringify(shelves));
@@ -52,6 +53,7 @@ function App() {
     setShelves(updated);
     setNewItem("");
     setReaction(":)");
+    setSearchTerm("");
   };
 
   const handleRemove = (item, action) => {
@@ -137,23 +139,41 @@ function App() {
         </div>
       </div>
 
+      <div className="search-box">
+        <input
+          type="text"
+          placeholder="Search items..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button className="clear-search" onClick={() => setSearchTerm("")}>
+            ❌
+          </button>
+        )}
+      </div>
+
       <div className="scroll-area">
         <ul className="item-list">
-          {shelves[activeShelf].map((item, idx) => (
-            <li
-              key={idx}
-              className="item"
-              draggable
-              onDragStart={(e) =>
-                e.dataTransfer.setData("item", JSON.stringify(item))
-              }
-            >
-              <div className="item-info">
-                {item.name}{" "}
-                <small>{new Date(item.time).toLocaleDateString()}</small>
-              </div>
-            </li>
-          ))}
+          {shelves[activeShelf]
+            .filter((item) =>
+              item.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .map((item, idx) => (
+              <li
+                key={idx}
+                className="item"
+                draggable
+                onDragStart={(e) =>
+                  e.dataTransfer.setData("item", JSON.stringify(item))
+                }
+              >
+                <div className="item-info">
+                  {item.name}{" "}
+                  <small>{new Date(item.time).toLocaleDateString()}</small>
+                </div>
+              </li>
+            ))}
         </ul>
       </div>
 

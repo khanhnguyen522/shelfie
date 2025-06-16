@@ -299,3 +299,31 @@ body,
   color: red;
   border-color: red;
 }
+
+.search-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin: 0 auto;
+  max-width: 400px;
+  gap: 0.5rem;
+}
+
+.search-box input {
+  flex-grow: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: var(--item-bg);
+  color: var(--text-color);
+}
+
+.clear-search {
+  background-color: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-color);
+}
