@@ -414,3 +414,25 @@ body,
   border-color: #f1c40f;
   box-shadow: 0 0 0 3px rgba(255, 223, 0, 0.3);
 }
+
+.undo-toast {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-secondary, #fff);
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  z-index: 1000;
+}
+.undo-toast button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}

@@ -31,6 +31,7 @@ function App() {
   const [purchaseDate, setPurchaseDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
+  const [lastAction, setLastAction] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("shelfie-data", JSON.stringify(shelves));
@@ -95,6 +96,15 @@ function App() {
     setSearchTerm("");
   };
 
+  useEffect(() => {
+    if (lastAction) {
+      const timer = setTimeout(() => {
+        setLastAction(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [lastAction]);
+
   const handleRemove = (item, action) => {
     const updatedShelf = shelves[activeShelf]
       .map((i) => {
@@ -114,6 +124,12 @@ function App() {
     setShelves({
       ...shelves,
       [activeShelf]: updatedShelf,
+    });
+
+    setLastAction({
+      type: "remove",
+      item,
+      shelf: activeShelf,
     });
 
     setHistory((prev) =>
@@ -142,6 +158,13 @@ function App() {
       ),
     };
     setShelves(updated);
+    setLastAction({
+      type: "edit",
+      originalItem: editingItem,
+      newName: editText,
+      shelf: activeShelf,
+    });
+
     setEditingItem(null);
     setEditText("");
   };
@@ -149,6 +172,32 @@ function App() {
   const handleEditCancel = () => {
     setEditingItem(null);
     setEditText("");
+  };
+
+  const handleUndo = () => {
+    if (!lastAction) return;
+
+    const updated = { ...shelves };
+
+    if (lastAction.type === "remove") {
+      updated[lastAction.shelf] = [
+        ...updated[lastAction.shelf],
+        lastAction.item,
+      ].sort((a, b) => new Date(a.time) - new Date(b.time));
+
+      setShelves(updated);
+    } else if (lastAction.type === "edit") {
+      updated[lastAction.shelf] = updated[lastAction.shelf].map((item) =>
+        item.name === lastAction.newName &&
+        item.time === lastAction.originalItem.time
+          ? { ...item, name: lastAction.originalItem.name }
+          : item
+      );
+
+      setShelves(updated);
+    }
+
+    setLastAction(null);
   };
 
   function groupHistoryByWeek(history) {
@@ -395,6 +444,14 @@ function App() {
           </div>
         ))}{" "}
       </aside>
+
+      {lastAction && (
+        <div className="undo-toast">
+          <span>Action undone?</span>
+          <button onClick={handleUndo}>↩️ Undo</button>
+          <button onClick={() => setLastAction(null)}>❌</button>
+        </div>
+      )}
     </div>
   );
 }
