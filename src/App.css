@@ -374,9 +374,15 @@ body,
   padding: 0.5rem;
   font-size: 1rem;
   border: 2px solid #ccc;
-  border-radius: 8px;
+  border-radius: 6px;
   background-color: var(--item-bg);
   color: var(--text-color);
+}
+
+[data-theme="dark"] .search-box input {
+  background-color: #333;
+  color: #fff;
+  border: 2px solid #666;
 }
 
 .clear-search {
@@ -387,13 +393,14 @@ body,
   color: var(--text-color);
 }
 
+.filter-select,
 .category-select {
   font-family: "Pixelify Sans", sans-serif;
   font-size: 1rem;
-  padding: 0.4rem 0.8rem;
-  border: 2px solid var(--tab-border);
-  border-radius: 6px;
-  background-color: var(--tab-bg);
+  padding: 0.5rem 1.8rem 0.5rem 0.8rem;
+  border: 2px solid #ccc;
+  border-radius: 6px; /* Match border-radius */
+  background-color: var(--item-bg);
   color: var(--text-color);
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, #888 50%),
@@ -403,16 +410,29 @@ body,
   background-repeat: no-repeat;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-grow: 1; /* Optional: makes it grow like the input */
 }
 
+.filter-select:hover,
 .category-select:hover {
   background-color: var(--tab-active);
 }
 
+/* Focus style: keep border same as normal, no yellow highlight */
+.filter-select:focus,
 .category-select:focus {
   outline: none;
-  border-color: #f1c40f;
-  box-shadow: 0 0 0 3px rgba(255, 223, 0, 0.3);
+  border-color: #ccc; /* same as normal border */
+  box-shadow: none;
+}
+
+[data-theme="dark"] .filter-select,
+[data-theme="dark"] .category-select {
+  background-color: #333;
+  color: #fff;
+  border: 2px solid #666;
+  background-image: linear-gradient(45deg, transparent 50%, #ccc 50%),
+    linear-gradient(135deg, #ccc 50%, transparent 50%);
 }
 
 .undo-toast {

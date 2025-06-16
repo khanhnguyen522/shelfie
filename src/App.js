@@ -32,6 +32,7 @@ function App() {
     () => new Date().toISOString().split("T")[0]
   );
   const [lastAction, setLastAction] = useState(null);
+  const [filterCategory, setFilterCategory] = useState("all");
 
   useEffect(() => {
     localStorage.setItem("shelfie-data", JSON.stringify(shelves));
@@ -347,8 +348,32 @@ function App() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        {searchTerm && (
-          <button className="clear-search" onClick={() => setSearchTerm("")}>
+        <select
+          className="filter-select"
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+        >
+          <option value="all">All Categories</option>
+          <option value="fruit">🍎 Fruit</option>
+          <option value="veggie">🥦 Veggie</option>
+          <option value="snack">🍪 Snack</option>
+          <option value="drink">🥤 Drink</option>
+          <option value="meat">🥩 Meat</option>
+          <option value="fish">🐟 Fish</option>
+          <option value="dairy">🧀 Dairy</option>
+          <option value="baked">🍞 Baked</option>
+          <option value="condiment">🧂 Condiment</option>
+          <option value="meal">🍱 Meal</option>
+          <option value="other">📦 Other</option>
+        </select>
+        {(searchTerm || filterCategory !== "all") && (
+          <button
+            className="clear-search"
+            onClick={() => {
+              setSearchTerm("");
+              setFilterCategory("all");
+            }}
+          >
             ❌
           </button>
         )}
@@ -357,9 +382,14 @@ function App() {
       <div className="scroll-area">
         <ul className="item-list">
           {shelves[activeShelf]
-            .filter((item) =>
-              item.name.toLowerCase().includes(searchTerm.toLowerCase())
-            )
+            .filter((item) => {
+              const nameMatches = item.name
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase());
+              const categoryMatches =
+                filterCategory === "all" || item.category === filterCategory;
+              return nameMatches && categoryMatches;
+            })
             .map((item, idx) => (
               <li
                 key={idx}
