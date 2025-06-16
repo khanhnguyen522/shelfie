@@ -124,7 +124,7 @@ body,
 
 .item {
   width: 90%;
-  max-width: 600px; /* Optional: prevent it from getting too wide on huge screens */
+  max-width: 600px;
   margin: 0.5rem auto;
   display: flex;
   align-items: center;
@@ -216,6 +216,7 @@ body,
   top: 6.5rem;
   z-index: 2;
   display: flex;
+  flex-wrap: wrap; /* allow wrapping */
   justify-content: center;
   gap: 0.5rem;
   margin: 1rem auto;
@@ -384,4 +385,32 @@ body,
   font-size: 1.2rem;
   cursor: pointer;
   color: var(--text-color);
+}
+
+.category-select {
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  border: 2px solid var(--tab-border);
+  border-radius: 6px;
+  background-color: var(--tab-bg);
+  color: var(--text-color);
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #888 50%),
+    linear-gradient(135deg, #888 50%, transparent 50%);
+  background-position: calc(100% - 1rem) center, calc(100% - 0.8rem) center;
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-select:hover {
+  background-color: var(--tab-active);
+}
+
+.category-select:focus {
+  outline: none;
+  border-color: #f1c40f;
+  box-shadow: 0 0 0 3px rgba(255, 223, 0, 0.3);
 }

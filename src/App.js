@@ -27,7 +27,10 @@ function App() {
   const [editText, setEditText] = useState("");
   const [newPrice, setNewPrice] = useState("");
   const [newQuantity, setNewQuantity] = useState(1);
-  const [newCategory, setNewCategory] = useState("");
+  const [newCategory, setNewCategory] = useState("fruit");
+  const [purchaseDate, setPurchaseDate] = useState(
+    () => new Date().toISOString().split("T")[0]
+  );
 
   useEffect(() => {
     localStorage.setItem("shelfie-data", JSON.stringify(shelves));
@@ -48,7 +51,7 @@ function App() {
   const handleAdd = () => {
     if (!newItem) return;
     const price = parseFloat(newPrice) || 0;
-    const timestamp = new Date();
+    const timestamp = new Date(purchaseDate);
 
     const updated = {
       ...shelves,
@@ -80,13 +83,14 @@ function App() {
 
         ...prev,
       ];
-      return newLog.slice(0, 50); // keep more if you want
+      return newLog.slice(0, 50);
     });
 
     setNewItem("");
     setNewPrice("");
     setNewQuantity(1);
     setNewCategory("");
+    setPurchaseDate(new Date().toISOString().split("T")[0]);
     setReaction(":)");
     setSearchTerm("");
   };
@@ -169,20 +173,20 @@ function App() {
   }
 
   function getCategoryIcon(category) {
-    switch (category) {
-      case "fruit":
-        return "🍎";
-      case "veggie":
-        return "🥦";
-      case "snack":
-        return "🍪";
-      case "drink":
-        return "🥤";
-      case "other":
-        return "📦";
-      default:
-        return "";
-    }
+    const icons = {
+      fruit: "🍎",
+      veggie: "🥦",
+      snack: "🍪",
+      drink: "🥤",
+      meat: "🥩",
+      fish: "🐟",
+      dairy: "🧀",
+      baked: "🍞",
+      condiment: "🧂",
+      meal: "🍱",
+      other: "📦",
+    };
+    return icons[category] || "📦";
   }
 
   return (
@@ -228,16 +232,28 @@ function App() {
           onChange={(e) => setNewQuantity(parseInt(e.target.value)) || 1}
         />
         <select
+          className="category-select"
           value={newCategory}
           onChange={(e) => setNewCategory(e.target.value)}
         >
-          <option value="">Category</option>
           <option value="fruit">🍎 Fruit</option>
           <option value="veggie">🥦 Veggie</option>
           <option value="snack">🍪 Snack</option>
           <option value="drink">🥤 Drink</option>
+          <option value="meat">🥩 Meat</option>
+          <option value="fish">🐟 Fish</option>
+          <option value="dairy">🧀 Dairy</option>
+          <option value="baked">🍞 Baked</option>
+          <option value="condiment">🧂 Condiment</option>
+          <option value="meal">🍱 Meal</option>
           <option value="other">📦 Other</option>
         </select>
+
+        <input
+          type="date"
+          value={purchaseDate}
+          onChange={(e) => setPurchaseDate(e.target.value)}
+        />
 
         <input
           type="number"
