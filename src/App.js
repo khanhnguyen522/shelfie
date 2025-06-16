@@ -23,6 +23,8 @@ function App() {
   });
   const [showHistory, setShowHistory] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingItem, setEditingItem] = useState(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     localStorage.setItem("shelfie-data", JSON.stringify(shelves));
@@ -74,6 +76,26 @@ function App() {
       ];
       return newLog.slice(0, 10);
     });
+  };
+
+  const handleEditSave = () => {
+    if (!editingItem) return;
+    const updated = {
+      ...shelves,
+      [activeShelf]: shelves[activeShelf].map((item) =>
+        item.name === editingItem.name && item.time === editingItem.time
+          ? { ...item, name: editText }
+          : item
+      ),
+    };
+    setShelves(updated);
+    setEditingItem(null);
+    setEditText("");
+  };
+
+  const handleEditCancel = () => {
+    setEditingItem(null);
+    setEditText("");
   };
 
   return (
@@ -168,10 +190,50 @@ function App() {
                   e.dataTransfer.setData("item", JSON.stringify(item))
                 }
               >
-                <div className="item-info">
+                {/* <div className="item-info">
                   {item.name}{" "}
                   <small>{new Date(item.time).toLocaleDateString()}</small>
-                </div>
+                </div> */}
+                {editingItem &&
+                editingItem.name === item.name &&
+                editingItem.time === item.time ? (
+                  <div className="item-info">
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <div className="item-actions">
+                      <button onClick={handleEditSave} className="edit-button">
+                        💾
+                      </button>
+                      <button
+                        onClick={handleEditCancel}
+                        className="cancel-button"
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="item-info">
+                      {item.name}{" "}
+                      <small>{new Date(item.time).toLocaleDateString()}</small>
+                    </div>
+                    <div className="item-actions">
+                      <button
+                        onClick={() => {
+                          setEditingItem(item);
+                          setEditText(item.name);
+                        }}
+                        className="edit"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </>
+                )}
               </li>
             ))}
         </ul>
