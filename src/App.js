@@ -25,6 +25,9 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [editText, setEditText] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newQuantity, setNewQuantity] = useState(1);
+  const [newCategory, setNewCategory] = useState("");
 
   useEffect(() => {
     localStorage.setItem("shelfie-data", JSON.stringify(shelves));
@@ -44,38 +47,84 @@ function App() {
 
   const handleAdd = () => {
     if (!newItem) return;
+    const price = parseFloat(newPrice) || 0;
+    const timestamp = new Date();
+
     const updated = {
       ...shelves,
       [activeShelf]: [
         ...shelves[activeShelf],
-        { name: newItem, time: new Date() },
+        {
+          name: newItem,
+          time: timestamp,
+          price,
+          quantity: newQuantity,
+          category: newCategory,
+        },
       ],
     };
     updated[activeShelf].sort((a, b) => new Date(a.time) - new Date(b.time));
     setShelves(updated);
+
+    setHistory((prev) => {
+      const newLog = [
+        {
+          name: newItem,
+          price,
+          quantity: newQuantity,
+          action: "add",
+          time: timestamp,
+          emoji: "📦",
+          category: newCategory,
+        },
+
+        ...prev,
+      ];
+      return newLog.slice(0, 50); // keep more if you want
+    });
+
     setNewItem("");
+    setNewPrice("");
+    setNewQuantity(1);
+    setNewCategory("");
     setReaction(":)");
     setSearchTerm("");
   };
 
   const handleRemove = (item, action) => {
-    const updated = {
-      ...shelves,
-      [activeShelf]: shelves[activeShelf].filter(
-        (i) => i.name !== item.name || i.time !== item.time
-      ),
-    };
-    setShelves(updated);
-    setReaction(action === "eat" ? ":D" : ":(");
+    const updatedShelf = shelves[activeShelf]
+      .map((i) => {
+        if (
+          i.name === item.name &&
+          new Date(i.time).toISOString() === new Date(item.time).toISOString()
+        ) {
+          if (i.quantity && i.quantity > 1) {
+            return { ...i, quantity: i.quantity - 1 };
+          }
+          return null;
+        }
+        return i;
+      })
+      .filter(Boolean);
 
-    const emoji = action === "eat" ? "🍽️" : "🗑️";
-    setHistory((prev) => {
-      const newLog = [
-        { name: item.name, action, time: new Date(), emoji },
-        ...prev,
-      ];
-      return newLog.slice(0, 10);
+    setShelves({
+      ...shelves,
+      [activeShelf]: updatedShelf,
     });
+
+    setHistory((prev) =>
+      prev.map((entry) => {
+        if (entry.name === item.name && entry.time === item.time) {
+          return {
+            ...entry,
+            emoji: action === "eat" ? "🍽️" : "🗑️",
+          };
+        }
+        return entry;
+      })
+    );
+
+    setReaction(action === "eat" ? ":D" : ":(");
   };
 
   const handleEditSave = () => {
@@ -97,6 +146,44 @@ function App() {
     setEditingItem(null);
     setEditText("");
   };
+
+  function groupHistoryByWeek(history) {
+    const grouped = {};
+    history.forEach((entry) => {
+      const date = new Date(entry.time);
+      const monday = new Date(date);
+      monday.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+
+      const weekKey = monday.toISOString().slice(0, 10);
+      if (!grouped[weekKey]) grouped[weekKey] = [];
+      grouped[weekKey].push(entry);
+    });
+
+    return Object.entries(grouped)
+      .sort((a, b) => new Date(b[0] - new Date(a[0])))
+      .map(([weekStart, items]) => ({
+        weekStart,
+        items,
+        total: items.reduce((sum, item) => sum + (item.price || 0), 0),
+      }));
+  }
+
+  function getCategoryIcon(category) {
+    switch (category) {
+      case "fruit":
+        return "🍎";
+      case "veggie":
+        return "🥦";
+      case "snack":
+        return "🍪";
+      case "drink":
+        return "🥤";
+      case "other":
+        return "📦";
+      default:
+        return "";
+    }
+  }
 
   return (
     <div className="container">
@@ -132,6 +219,33 @@ function App() {
           placeholder="Add item..."
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
+        />
+        <input
+          type="number"
+          min="1"
+          placeholder="Qty"
+          value={newQuantity}
+          onChange={(e) => setNewQuantity(parseInt(e.target.value)) || 1}
+        />
+        <select
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+        >
+          <option value="">Category</option>
+          <option value="fruit">🍎 Fruit</option>
+          <option value="veggie">🥦 Veggie</option>
+          <option value="snack">🍪 Snack</option>
+          <option value="drink">🥤 Drink</option>
+          <option value="other">📦 Other</option>
+        </select>
+
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Price"
+          value={newPrice}
+          onChange={(e) => setNewPrice(e.target.value)}
         />
         <button onClick={handleAdd}>+</button>
       </div>
@@ -190,10 +304,6 @@ function App() {
                   e.dataTransfer.setData("item", JSON.stringify(item))
                 }
               >
-                {/* <div className="item-info">
-                  {item.name}{" "}
-                  <small>{new Date(item.time).toLocaleDateString()}</small>
-                </div> */}
                 {editingItem &&
                 editingItem.name === item.name &&
                 editingItem.time === item.time ? (
@@ -218,9 +328,11 @@ function App() {
                 ) : (
                   <>
                     <div className="item-info">
-                      {item.name}{" "}
+                      {getCategoryIcon(item.category)} {item.name}
+                      {item.quantity > 1 && <strong>×{item.quantity}</strong>}
                       <small>{new Date(item.time).toLocaleDateString()}</small>
                     </div>
+
                     <div className="item-actions">
                       <button
                         onClick={() => {
@@ -246,17 +358,27 @@ function App() {
         {showHistory ? "❌" : "🗃️"}
       </button>
 
-      <div className={`history-panel ${showHistory ? "show" : ""}`}>
-        <h3>History</h3>
-        <ul>
-          {history.map((log, i) => (
-            <li key={i}>
-              {log.emoji} <strong> {log.name}</strong> - {log.action} on{" "}
-              {new Date(log.time).toLocaleDateString()}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <aside className={`history-panel${showHistory ? " show" : ""}`}>
+        <h3>Spending History</h3>
+        {groupHistoryByWeek(history).map((week) => (
+          <div key={week.weekStart} className="weekly-group">
+            <h4>Week of {new Date(week.weekStart).toLocaleDateString()}</h4>
+            <ul>
+              {week.items.map((it, i) => (
+                <li key={i}>
+                  {getCategoryIcon(it.category)} {it.emoji} {it.name}
+                  {it.quantity > 1 && ` ×${it.quantity}`} — $
+                  {(it.price ?? 0).toFixed(2)}
+                  <span className="history-date">
+                    ({new Date(it.time).toLocaleDateString()})
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="weekly-total">Total: ${week.total.toFixed(2)}</div>
+          </div>
+        ))}{" "}
+      </aside>
     </div>
   );
 }

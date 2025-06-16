@@ -63,6 +63,7 @@ body,
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .header {
@@ -122,15 +123,29 @@ body,
 }
 
 .item {
+  width: 90%;
+  max-width: 600px; /* Optional: prevent it from getting too wide on huge screens */
+  margin: 0.5rem auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem;
   border: 2px dashed #ccc;
-  margin: 0.5rem 0;
   border-radius: 10px;
   background-color: var(--item-bg);
+}
+
+@media (min-width: 768px) {
+  .item {
+    width: 70%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .item {
+    width: 60%;
+  }
 }
 
 .item-info small {
@@ -257,37 +272,59 @@ body,
 
 .history-panel {
   position: fixed;
-  top: 5.5rem;
-  right: 0;
-  height: calc(100% - 3.5rem);
-  z-index: 2;
-  background-color: var(--tab-bg);
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  top: 0;
+  right: -320px; /* hide off-screen */
+  width: 300px;
+  height: 100vh;
+  background: var(--tab-bg);
   padding: 1rem;
-  font-size: 0.9rem;
-  transition: transform 0.3s ease;
-  transform: translateX(100%);
+  border-left: 3px solid var(--tab-border);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  transition: right 0.3s ease;
+  z-index: 999;
 }
-
 .history-panel.show {
-  transform: translateX(0);
-  z-index: 2;
+  right: 0;
 }
 
-.history-panel h3 {
-  margin-top: 0;
-  border-bottom: 1px solid var(--tab-border);
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
+/* Toggle button positioning */
+.history-toggle {
+  position: fixed;
+  top: 1.2rem;
+  right: 1rem;
+  z-index: 1000;
 }
 
-.history-panel ul {
+/* Weekly group formatting */
+.weekly-group {
+  margin-bottom: 1rem;
+}
+.weekly-group h4 {
+  margin: 0.5rem 0 0.25rem;
+}
+.weekly-group ul {
   list-style: none;
-  padding: 0;
+  padding-left: 0;
+}
+.weekly-group li {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+.weekly-group .history-date {
+  font-size: 0.8em;
+  color: gray;
+  margin-left: 0.5rem;
+}
+.weekly-total {
+  font-weight: bold;
+  margin-top: 0.3rem;
 }
 
-.history-panel li {
-  margin-bottom: 0.5rem;
+.add-box input[type="number"] {
+  width: 80px;
+  text-align: right;
 }
 
 .drop-zones {
