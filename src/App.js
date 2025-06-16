@@ -17,6 +17,11 @@ function App() {
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("dark-mode") === "true";
   });
+  const [history, setHistory] = useState(() => {
+    const saved = localStorage.getItem("shelfie-history");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("shelfie-data", JSON.stringify(shelves));
@@ -29,6 +34,10 @@ function App() {
     );
     localStorage.setItem("dark-mode", darkMode);
   }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem("shelfie-history", JSON.stringify(history));
+  }, [history]);
 
   const handleAdd = () => {
     if (!newItem) return;
@@ -48,10 +57,21 @@ function App() {
   const handleRemove = (item, action) => {
     const updated = {
       ...shelves,
-      [activeShelf]: shelves[activeShelf].filter((i) => i != item),
+      [activeShelf]: shelves[activeShelf].filter(
+        (i) => i.name !== item.name || i.time !== item.time
+      ),
     };
     setShelves(updated);
     setReaction(action === "eat" ? ":D" : ":(");
+
+    const emoji = action === "eat" ? "🍽️" : "🗑️";
+    setHistory((prev) => {
+      const newLog = [
+        { name: item.name, action, time: new Date(), emoji },
+        ...prev,
+      ];
+      return newLog.slice(0, 10);
+    });
   };
 
   return (
@@ -94,20 +114,63 @@ function App() {
 
       {/* <div className="reaction-face">{reaction}</div> */}
 
+      <div className="drop-zones">
+        <div
+          className="drop-zone eat"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            const item = JSON.parse(e.dataTransfer.getData("item"));
+            handleRemove(item, "eat");
+          }}
+        >
+          🍽️ Eat
+        </div>
+        <div
+          className="drop-zone trash"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            const item = JSON.parse(e.dataTransfer.getData("item"));
+            handleRemove(item, "throw");
+          }}
+        >
+          🗑️ Trash
+        </div>
+      </div>
+
       <div className="scroll-area">
         <ul className="item-list">
           {shelves[activeShelf].map((item, idx) => (
-            <li key={idx} className="item">
+            <li
+              key={idx}
+              className="item"
+              draggable
+              onDragStart={(e) =>
+                e.dataTransfer.setData("item", JSON.stringify(item))
+              }
+            >
               <div className="item-info">
                 {item.name}{" "}
                 <small>{new Date(item.time).toLocaleDateString()}</small>
               </div>
-              <div className="item-actions">
-                <button onClick={() => handleRemove(item, "eat")}>Eat</button>
-                <button onClick={() => handleRemove(item, "throw")}>
-                  Throw
-                </button>
-              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <button
+        className="history-toggle"
+        onClick={() => setShowHistory(!showHistory)}
+      >
+        {showHistory ? "❌" : "🗃️"}
+      </button>
+
+      <div className={`history-panel ${showHistory ? "show" : ""}`}>
+        <h3>History</h3>
+        <ul>
+          {history.map((log, i) => (
+            <li key={i}>
+              {log.emoji} <strong> {log.name}</strong> - {log.action} on{" "}
+              {new Date(log.time).toLocaleDateString()}
             </li>
           ))}
         </ul>
