@@ -135,10 +135,15 @@ function App() {
 
     setHistory((prev) =>
       prev.map((entry) => {
-        if (entry.name === item.name && entry.time === item.time) {
+        if (
+          entry.name === item.name &&
+          new Date(entry.time).toISOString() ===
+            new Date(item.time).toISOString()
+        ) {
           return {
             ...entry,
             emoji: action === "eat" ? "🍽️" : "🗑️",
+            action: action,
           };
         }
         return entry;
@@ -214,7 +219,7 @@ function App() {
     });
 
     return Object.entries(grouped)
-      .sort((a, b) => new Date(b[0] - new Date(a[0])))
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
       .map(([weekStart, items]) => ({
         weekStart,
         items,
@@ -455,13 +460,19 @@ function App() {
 
       <aside className={`history-panel${showHistory ? " show" : ""}`}>
         <h3>Spending History</h3>
-        {groupHistoryByWeek(history).map((week) => (
+        {groupHistoryByWeek(history).map((week, index, arr) => (
           <div key={week.weekStart} className="weekly-group">
             <h4>Week of {new Date(week.weekStart).toLocaleDateString()}</h4>
             <ul>
               {week.items.map((it, i) => (
                 <li key={i}>
-                  {getCategoryIcon(it.category)} {it.emoji} {it.name}
+                  {getCategoryIcon(it.category)}{" "}
+                  {it.action === "eat"
+                    ? "🍽️"
+                    : it.action === "throw"
+                    ? "🗑️"
+                    : "📦"}{" "}
+                  {it.name}
                   {it.quantity > 1 && ` ×${it.quantity}`} — $
                   {(it.price ?? 0).toFixed(2)}
                   <span className="history-date">
@@ -471,6 +482,7 @@ function App() {
               ))}
             </ul>
             <div className="weekly-total">Total: ${week.total.toFixed(2)}</div>
+            {index < arr.length - 1 && <hr />}
           </div>
         ))}{" "}
       </aside>
